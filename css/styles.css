@@ -1,0 +1,59 @@
+/* Glassmorphism & High-End Visual Utilities */
+:root {
+  --cursor-x: -100px;
+  --cursor-y: -100px;
+}
+
+body {
+  background-color: #070709;
+  background-image: radial-gradient(circle at 50% 0%, rgba(255, 42, 85, 0.08) 0%, transparent 60%);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #070709;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #ff2a55;
+}
+
+/* Hologram Specular Sheen on 3D Tilt Cards */
+.tilt-card {
+  transition: transform 0.15s ease-out, border-color 0.3s ease;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.tilt-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(255, 255, 255, 0.12),
+    transparent 60%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.tilt-card:hover::after {
+  opacity: 1;
+}
+
+/* Mobile Cursor Suppression */
+@media (hover: none) and (pointer: coarse) {
+  #cursor-dot,
+  #cursor-ring {
+    display: none !important;
+  }
+}

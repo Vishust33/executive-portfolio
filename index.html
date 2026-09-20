@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[CLIENT_NAME] | Executive Venture Portfolio</title>
+  <meta name="description" content="Official portfolio of [CLIENT_NAME] — Founder, Investor, and Venture Scaler." />
+
+  <!-- Fonts: Syne (Headings) & Space Grotesk (Body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              black: '#070709',
+              card: 'rgba(17, 17, 24, 0.65)',
+              accent: '#ff2a55',
+              accentGlow: 'rgba(255, 42, 85, 0.35)',
+              cyan: '#00f0ff',
+              cyanGlow: 'rgba(0, 240, 255, 0.25)',
+              border: 'rgba(255, 255, 255, 0.08)'
+            }
+          },
+          fontFamily: {
+            display: ['Syne', 'sans-serif'],
+            sans: ['Space Grotesk', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- GSAP & ScrollTrigger -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+
+<body class="bg-brand-black text-gray-200 font-sans selection:bg-brand-accent selection:text-white relative overflow-x-hidden">
+
+  <!-- Custom Magnetic Cursor Elements -->
+  <div id="cursor-dot" class="fixed top-0 left-0 w-2 h-2 bg-brand-accent rounded-full pointer-events-none z-50 transition-opacity duration-300"></div>
+  <div id="cursor-ring" class="fixed top-0 left-0 w-9 h-9 border border-brand-accent/50 rounded-full pointer-events-none z-50 transition-all duration-150 ease-out"></div>
+
+  <!-- Ambient Dynamic Canvas -->
+  <canvas id="bg-canvas" class="fixed inset-0 pointer-events-none z-0"></canvas>
+
+  <!-- Navigation Bar -->
+  <header class="fixed top-0 left-0 w-full z-40 backdrop-blur-xl border-b border-brand-border bg-brand-black/70">
+    <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+      <a href="#" class="flex items-center gap-3 group" data-magnetic>
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-accent to-purple-600 flex items-center justify-center font-display font-bold text-white shadow-lg shadow-brand-accentGlow">
+          [C]
+        </div>
+        <div class="flex flex-col">
+          <span class="font-display font-bold tracking-wider text-white text-base group-hover:text-brand-accent transition-colors">[CLIENT_NAME]</span>
+          <span class="font-mono text-[10px] tracking-widest text-gray-400 uppercase">[EXECUTIVE_TITLE]</span>
+        </div>
+      </a>
+
+      <!-- Desktop Links -->
+      <nav class="hidden md:flex items-center gap-8 font-mono text-xs uppercase tracking-widest text-gray-400">
+        <a href="#about" class="hover:text-white transition-colors" data-magnetic>01 // About</a>
+        <a href="#ventures" class="hover:text-white transition-colors" data-magnetic>02 // Ventures</a>
+        <a href="#metrics" class="hover:text-white transition-colors" data-magnetic>03 // Track Record</a>
+        <a href="#inquiries" class="hover:text-white transition-colors" data-magnetic>04 // Inquiries</a>
+      </nav>
+
+      <!-- Action Items -->
+      <div class="flex items-center gap-4">
+        <button id="cmd-btn" class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-brand-border bg-white/5 hover:border-brand-accent/50 text-xs font-mono text-gray-400 hover:text-white transition-all" data-magnetic>
+          <i data-lucide="terminal" class="w-3.5 h-3.5 text-brand-cyan"></i>
+          <span>Cmd + K</span>
+        </button>
+
+        <a href="#inquiries" class="px-5 py-2.5 rounded-xl bg-brand-accent hover:bg-brand-accent/90 text-white font-mono text-xs uppercase tracking-wider font-semibold shadow-lg shadow-brand-accentGlow transition-all" data-magnetic>
+          Contact Office
+        </a>
+
+        <!-- Mobile Menu Toggle -->
+        <button id="mobile-toggle" class="md:hidden p-2 text-gray-400 hover:text-white">
+          <i data-lucide="menu" class="w-6 h-6"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer -->
+  <div id="mobile-drawer" class="fixed inset-0 z-50 bg-brand-black/95 backdrop-blur-2xl flex flex-col p-8 transform translate-x-full transition-transform duration-300 md:hidden">
+    <div class="flex justify-between items-center mb-12">
+      <span class="font-display font-bold text-lg">[CLIENT_NAME]</span>
+      <button id="mobile-close" class="p-2 text-gray-400 hover:text-white">
+        <i data-lucide="x" class="w-6 h-6"></i>
+      </button>
+    </div>
+    <nav class="flex flex-col gap-6 font-display text-2xl font-bold">
+      <a href="#about" class="mobile-link text-gray-300 hover:text-brand-accent">01. About</a>
+      <a href="#ventures" class="mobile-link text-gray-300 hover:text-brand-accent">02. Ventures</a>
+      <a href="#metrics" class="mobile-link text-gray-300 hover:text-brand-accent">03. Track Record</a>
+      <a href="#inquiries" class="mobile-link text-gray-300 hover:text-brand-accent">04. Inquiries</a>
+    </nav>
+  </div>
+
+  <main class="relative z-10 pt-20">
+
+    <!-- HERO SECTION -->
+    <section class="min-h-[90vh] flex items-center justify-center px-6 relative py-20">
+      <div class="max-w-6xl mx-auto flex flex-col items-center text-center">
+        
+        <!-- Live Status Pill -->
+        <div class="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full border border-brand-accent/40 bg-brand-accent/10 backdrop-blur-md mb-8">
+          <span class="w-2 h-2 rounded-full bg-brand-accent animate-ping"></span>
+          <span class="w-2 h-2 rounded-full bg-brand-accent -ml-4.5"></span>
+          <span class="font-mono text-xs uppercase tracking-widest text-brand-accent font-semibold">[CURRENT_STATUS_E.G._ACTIVE_BOARD_MEMBER_&_ANGEL]</span>
+        </div>
+
+        <h1 class="font-display font-extrabold text-4xl sm:text-6xl lg:text-8xl tracking-tight text-white leading-tight max-w-5xl mb-6">
+          Architecting High-Growth <span class="bg-clip-text text-transparent bg-gradient-to-r from-brand-accent via-purple-400 to-brand-cyan">Ventures</span> & Scale.
+        </h1>
+
+        <p class="font-sans text-gray-400 text-lg sm:text-xl max-w-3xl mb-12 font-light leading-relaxed">
+          Over [X] years deploying growth strategies, stewarding enterprise mergers, and launching transformative tech companies. 
+          Operating at the intersection of capital, innovation, and execution.
+        </p>
+
+        <!-- CTA Action Cluster -->
+        <div class="flex flex-wrap items-center justify-center gap-4">
+          <a href="#ventures" class="px-8 py-4 rounded-xl bg-white text-brand-black font-mono text-sm uppercase tracking-wider font-bold hover:bg-gray-200 transition-all flex items-center gap-2 group" data-magnetic>
+            <span>Explore Portfolio</span>
+            <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+          </a>
+          <button id="open-brief-btn" class="px-8 py-4 rounded-xl border border-brand-border bg-brand-card backdrop-blur-md font-mono text-sm uppercase tracking-wider text-gray-300 hover:border-brand-accent/50 hover:text-white transition-all flex items-center gap-2" data-magnetic>
+            <i data-lucide="file-text" class="w-4 h-4 text-brand-accent"></i>
+            <span>Executive Dossier</span>
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- METRICS SECTION (High-Pace Visuals) -->
+    <section id="metrics" class="py-24 px-6 border-y border-brand-border bg-brand-black/50 backdrop-blur-sm">
+      <div class="max-w-7xl mx-auto">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          
+          <div class="tilt-card p-8 rounded-2xl border border-brand-border bg-brand-card relative group overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-brand-accent/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="font-mono text-xs text-brand-accent uppercase tracking-widest mb-4">Capital Orchestrated</div>
+            <div class="font-display font-extrabold text-5xl text-white mb-2 flex items-baseline">
+              <span>$</span>
+              <span class="counter-value" data-target="[METRIC_VALUE_1_EG_850]">0</span>
+              <span class="text-brand-accent">M+</span>
+            </div>
+            <p class="font-sans text-xs text-gray-400">[BRIEF_CAPTION_EG_Venture_rounds_and_syndicate_capital]</p>
+          </div>
+
+          <div class="tilt-card p-8 rounded-2xl border border-brand-border bg-brand-card relative group overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-brand-cyan/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="font-mono text-xs text-brand-cyan uppercase tracking-widest mb-4">Successful Exits</div>
+            <div class="font-display font-extrabold text-5xl text-white mb-2 flex items-baseline">
+              <span class="counter-value" data-target="[METRIC_VALUE_2_EG_14]">0</span>
+              <span class="text-brand-cyan">x</span>
+            </div>
+            <p class="font-sans text-xs text-gray-400">[BRIEF_CAPTION_EG_Acquisitions_and_strategic_M&A]</p>
+          </div>
+
+          <div class="tilt-card p-8 rounded-2xl border border-brand-border bg-brand-card relative group overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="font-mono text-xs text-purple-400 uppercase tracking-widest mb-4">Global Markets</div>
+            <div class="font-display font-extrabold text-5xl text-white mb-2 flex items-baseline">
+              <span class="counter-value" data-target="[METRIC_VALUE_3_EG_28]">0</span>
+              <span class="text-purple-400">+</span>
+            </div>
+            <p class="font-sans text-xs text-gray-400">[BRIEF_CAPTION_EG_Active_jurisdictions_and_distribution]</p>
+          </div>
+
+          <div class="tilt-card p-8 rounded-2xl border border-brand-border bg-brand-card relative group overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="font-mono text-xs text-emerald-400 uppercase tracking-widest mb-4">Enterprise Value</div>
+            <div class="font-display font-extrabold text-5xl text-white mb-2 flex items-baseline">
+              <span>$</span>
+              <span class="counter-value" data-target="[METRIC_VALUE_4_EG_2]">0</span>
+              <span class="text-emerald-400">.4B</span>
+            </div>
+            <p class="font-sans text-xs text-gray-400">[BRIEF_CAPTION_EG_Cumulative_portfolio_valuation]</p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- VENTURES & COMPANIES SHOWCASE -->
+    <section id="ventures" class="py-28 px-6">
+      <div class="max-w-7xl mx-auto">
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+          <div>
+            <div class="font-mono text-xs uppercase tracking-widest text-brand-accent mb-3">// Strategic Directorships</div>
+            <h2 class="font-display font-extrabold text-3xl sm:text-5xl text-white">Active Ventures & Board Seats.</h2>
+          </div>
+          <div class="flex items-center gap-2 bg-brand-card border border-brand-border p-1.5 rounded-xl font-mono text-xs">
+            <button class="filter-btn active px-4 py-2 rounded-lg bg-white/10 text-white" data-filter="all">All</button>
+            <button class="filter-btn px-4 py-2 rounded-lg text-gray-400 hover:text-white" data-filter="founder">Founder</button>
+            <button class="filter-btn px-4 py-2 rounded-lg text-gray-400 hover:text-white" data-filter="board">Board</button>
+            <button class="filter-btn px-4 py-2 rounded-lg text-gray-400 hover:text-white" data-filter="investor">Angel</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="ventures-grid">
+          
+          <!-- Venture Card 1 -->
+          <div class="venture-card group rounded-2xl border border-brand-border bg-brand-card overflow-hidden transition-all duration-300 hover:border-brand-accent/60" data-category="founder">
+            <div class="p-8">
+              <div class="flex items-center justify-between mb-6">
+                <span class="px-3 py-1 rounded-md bg-brand-accent/10 border border-brand-accent/30 font-mono text-[10px] text-brand-accent uppercase tracking-widest">[FOUNDER_&_CEO]</span>
+                <span class="font-mono text-xs text-gray-500">[2022_—_PRESENT]</span>
+              </div>
+              <h3 class="font-display font-bold text-2xl text-white mb-2 group-hover:text-brand-accent transition-colors">[VENTURE_ONE_NAME]</h3>
+              <p class="font-sans text-sm text-gray-400 mb-6 leading-relaxed">
+                [DESCRIPTION: Autonomous logistics orchestration platform scaling across 14 enterprise hubs in North America.]
+              </p>
+              <div class="flex flex-wrap gap-2 mb-6">
+                <span class="px-2.5 py-1 rounded bg-white/5 font-mono text-[11px] text-gray-300">Series B</span>
+                <span class="px-2.5 py-1 rounded bg-white/5 font-mono text-[11px] text-gray-300">Logistics Tech</span>
+                <span class="px-2.5 py-1 rounded bg-white/5 font-mono text-[11px] text-gray-300">Enterprise AI</span>
+              </div>
+              <div class="pt-6 border-t border-brand-border flex items-center justify-between font-mono text-xs">
+                <span class="text-gray-500">Valuation: [VALUATION_1]</span>
+                <a href="#" class="text-brand-accent hover:underline flex items-center gap-1" data-magnetic>Inspect Brief <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i></a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Venture Card 2 -->
+          <div class="venture-card group rounded-2xl border border-brand-border bg-brand-card overflow-hidden transition-all duration-300 hover:border-brand-cyan/60" data-category="board">
+            <div class="p-8">
+              <div class="flex items-center justify-between mb-6">
+                <span class="px-3 py-1 rounded-md bg-brand-cyan/10 border border-brand-cyan/30 font-mono text-[10px] text-brand-cyan uppercase tracking-widest">[INDEPENDENT_DIRECTOR]</span>
+                <span class="font-mono text-xs text-gray-500">[2020_—_PRESENT]</span>
+              </div>
+              <h3 class="font-display font-bold text-2xl text-white mb-2 group-hover:text-brand-cyan transition-colors">[VENTURE_TWO_NAME]</h3>
+              <p class="font-sans text-sm text-gray-400 mb-6 leading-relaxed">
+                [DESCRIPTION: Next-generation distributed cloud security mesh serving Fortune 50 financial institutions.]
+              </p>
+              <div class="flex flex-wrap gap-2 mb-6">
+                <span class="px-2.5 py-1 rounded bg-white/5 font-mono text-[11px] text-gray-300">FinTech</span>
+                <span class="px-2.5 py-1 rounded bg-white/5 font-mono text-[11px] text-gray-300">Infrastructure</span>
+                <span class="px-2.5 py-1 rounded bg-white/5 font-mono text-[11px] text-gray-300">Governance</span>
+              </div>
+              <div class="pt-6 border-t border-brand-border flex items-center justify-between font-mono text-xs">
+                <span class="text-gray-500">Market Cap: [VALUATION_2]</span>
+                <a href="#" class="text-brand-cyan hover:underline flex items-center gap-1" data-magnetic>Inspect Brief <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i></a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Venture Card 3 -->
+          <div class="venture-card group rounded-2xl border border-brand-border bg-brand-card overflow-hidden transition-all duration-300 hover:border-purple-500/60" data-category="investor">
+            <div class="p-8">
+              <div class="flex items-center justify-between mb-6">
+                <span class="px-3 py-1 rounded-md bg-purple-500/10 border border-purple-500/30 font-mono text-[10px] text-purple-400 uppercase tracking-widest">[ANGEL_INVESTOR]</span>
+                <span class="font-mono text-xs text-gray-500">[2023_—_ACTIVE]</span>
+              </div>
+              <h3 class="font-display font-bold text-2xl text-white mb-2 group-hover:text-purple-400 transition-colors">[VENTURE_THREE_NAME]</h3>
+              <p class="font-sans text-sm text-gray-400 mb-6 leading-relaxed">
+                [DESCRIPTION: Bio-computational synthetic intelligence research and predictive molecular simulations.]
+              </p>
+              <div class="flex flex-wrap gap-2 mb-6">
+                <span class="px-2.5 py-1 rounded bg-white/5 font-mono text-[11px] text-gray-300">DeepTech</span>
+                <span class="px-2.5 py-1 rounded bg-white/5 font-mono text-[11px] text-gray-300">Seed Lead</span>
+                <span class="px-2.5 py-1 rounded bg-white/5 font-mono text-[11px] text-gray-300">Synthetic Bio</span>
+              </div>
+              <div class="pt-6 border-t border-brand-border flex items-center justify-between font-mono text-xs">
+                <span class="text-gray-500">Round: [VALUATION_3]</span>
+                <a href="#" class="text-purple-400 hover:underline flex items-center gap-1" data-magnetic>Inspect Brief <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i></a>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- CONFIDENTIAL INQUIRIES / CONTACT -->
+    <section id="inquiries" class="py-28 px-6 border-t border-brand-border relative">
+      <div class="max-w-4xl mx-auto rounded-3xl border border-brand-border bg-brand-card/90 backdrop-blur-2xl p-8 sm:p-16 relative overflow-hidden">
+        <div class="absolute -top-32 -right-32 w-64 h-64 bg-brand-accent/20 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="text-center max-w-xl mx-auto mb-12">
+          <div class="font-mono text-xs uppercase tracking-widest text-brand-accent mb-3">// Executive Secretariat</div>
+          <h2 class="font-display font-bold text-3xl sm:text-4xl text-white mb-4">Direct Communication Channel.</h2>
+          <p class="font-sans text-gray-400 text-sm">
+            Inquiries regarding syndicate allocation, keynote commitments, or board advisory requests are triaged directly by executive staff.
+          </p>
+        </div>
+
+        <form id="contact-form" class="space-y-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div>
+              <label class="block font-mono text-xs uppercase tracking-wider text-gray-400 mb-2">Full Name</label>
+              <input type="text" required placeholder="e.g. Johnathan Vance" class="w-full px-4 py-3.5 rounded-xl bg-white/5 border border-brand-border focus:border-brand-accent text-white placeholder-gray-600 focus:outline-none transition-colors" />
+            </div>
+            <div>
+              <label class="block font-mono text-xs uppercase tracking-wider text-gray-400 mb-2">Corporate Email</label>
+              <input type="email" required placeholder="name@corporation.com" class="w-full px-4 py-3.5 rounded-xl bg-white/5 border border-brand-border focus:border-brand-accent text-white placeholder-gray-600 focus:outline-none transition-colors" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block font-mono text-xs uppercase tracking-wider text-gray-400 mb-2">Inquiry Classification</label>
+            <select class="w-full px-4 py-3.5 rounded-xl bg-brand-black border border-brand-border focus:border-brand-accent text-gray-300 focus:outline-none transition-colors">
+              <option>Strategic Venture Capital / Co-Investment</option>
+              <option>Board Seat & Advisory Engagement</option>
+              <option>Keynote Address / Public Summit</option>
+              <option>Confidential Media & Press</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block font-mono text-xs uppercase tracking-wider text-gray-400 mb-2">Executive Summary of Intent</label>
+            <textarea rows="4" required placeholder="Specify context, timeline, and transaction parameters..." class="w-full px-4 py-3.5 rounded-xl bg-white/5 border border-brand-border focus:border-brand-accent text-white placeholder-gray-600 focus:outline-none transition-colors"></textarea>
+          </div>
+
+          <button type="submit" class="w-full py-4 rounded-xl bg-brand-accent hover:bg-brand-accent/90 text-white font-mono text-xs uppercase tracking-widest font-bold shadow-lg shadow-brand-accentGlow transition-all flex items-center justify-center gap-2" data-magnetic>
+            <i data-lucide="send" class="w-4 h-4"></i>
+            <span>Transmit Confidential Inquiry</span>
+          </button>
+        </form>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="py-12 px-6 border-t border-brand-border bg-brand-black text-gray-500 font-mono text-xs">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
+      <div>© 2026 [CLIENT_NAME]. All Rights Reserved. Executive Secretariat.</div>
+      <div class="flex items-center gap-6">
+        <a href="[LINKEDIN_URL]" class="hover:text-white transition-colors" data-magnetic>LinkedIn</a>
+        <a href="[TWITTER_X_URL]" class="hover:text-white transition-colors" data-magnetic>X // Twitter</a>
+        <a href="[CRUNCHBASE_URL]" class="hover:text-white transition-colors" data-magnetic>Crunchbase</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- EXECUTIVE COMMAND PALETTE (CMD + K) -->
+  <div id="cmd-modal" class="fixed inset-0 z-50 bg-brand-black/80 backdrop-blur-xl flex items-center justify-center p-4 hidden">
+    <div class="w-full max-w-xl bg-brand-card border border-brand-border rounded-2xl p-6 shadow-2xl relative">
+      <div class="flex items-center gap-3 border-b border-brand-border pb-4 mb-4">
+        <i data-lucide="search" class="w-5 h-5 text-brand-accent"></i>
+        <input id="cmd-input" type="text" placeholder="Type a command or jump to section..." class="w-full bg-transparent text-white font-mono text-sm placeholder-gray-500 focus:outline-none" />
+        <span class="font-mono text-[10px] text-gray-500 border border-brand-border px-1.5 py-0.5 rounded">ESC</span>
+      </div>
+
+      <div class="space-y-2 font-mono text-xs" id="cmd-results">
+        <div class="cmd-item p-3 rounded-lg hover:bg-white/5 cursor-pointer flex items-center justify-between text-gray-300" data-action="about">
+          <span>01. Read Executive Biography</span>
+          <span class="text-gray-500">Jump</span>
+        </div>
+        <div class="cmd-item p-3 rounded-lg hover:bg-white/5 cursor-pointer flex items-center justify-between text-gray-300" data-action="ventures">
+          <span>02. View Capital Portfolio & Exits</span>
+          <span class="text-gray-500">Jump</span>
+        </div>
+        <div class="cmd-item p-3 rounded-lg hover:bg-white/5 cursor-pointer flex items-center justify-between text-gray-300" data-action="email">
+          <span>03. Copy Executive Office Email</span>
+          <span class="text-brand-cyan">Action</span>
+        </div>
+        <div class="cmd-item p-3 rounded-lg hover:bg-white/5 cursor-pointer flex items-center justify-between text-gray-300" data-action="theme">
+          <span>04. Toggle Hyper-Focus Mode</span>
+          <span class="text-brand-accent">Toggle</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Scripts -->
+  <script src="js/canvas.js"></script>
+  <script src="js/cursor.js"></script>
+  <script src="js/interactions.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
